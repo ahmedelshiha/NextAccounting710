@@ -3,14 +3,25 @@
 import React, { useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { AlertCircle, RotateCcw } from 'lucide-react'
 import { SelectUsersStep } from './SelectUsersStep'
 import { ChooseOperationStep } from './ChooseOperationStep'
 import { ConfigureStep } from './ConfigureStep'
 import { ReviewStep } from './ReviewStep'
 import { ExecuteStep } from './ExecuteStep'
+import { CompletionStep } from './CompletionStep'
+
+export interface BulkOperationResult {
+  id: string
+  succeeded: number
+  failed: number
+  warnings: number
+  details: string[]
+  timestamp: Date
+}
 
 export interface WizardState {
-  step: 1 | 2 | 3 | 4 | 5
+  step: 1 | 2 | 3 | 4 | 5 | 6
   selectedUserIds: string[]
   operationType: string
   operationConfig: Record<string, any>
@@ -18,19 +29,32 @@ export interface WizardState {
   operationId?: string
   dryRunResults?: any
   executionProgress?: any
+  executionResult?: BulkOperationResult
 }
 
 interface BulkOperationsWizardProps {
   tenantId: string
   onClose: () => void
+  onExecute?: (operationId: string, operationConfig: Record<string, any>, userIds: string[]) => Promise<BulkOperationResult>
+  onRollback?: (operationId: string) => Promise<void>
+  showAdvancedFeatures?: boolean
 }
 
-const steps = [
+const basicSteps = [
   { number: 1, title: 'Select Users', description: 'Choose users to affect' },
   { number: 2, title: 'Operation Type', description: 'What action to perform' },
   { number: 3, title: 'Configure', description: 'Configure the operation' },
   { number: 4, title: 'Review', description: 'Preview and dry-run' },
   { number: 5, title: 'Execute', description: 'Run the operation' }
+]
+
+const advancedSteps = [
+  { number: 1, title: 'Select Users', description: 'Choose users to affect' },
+  { number: 2, title: 'Operation Type', description: 'What action to perform' },
+  { number: 3, title: 'Configure', description: 'Configure the operation' },
+  { number: 4, title: 'Review', description: 'Preview and dry-run' },
+  { number: 5, title: 'Execute', description: 'Run the operation' },
+  { number: 6, title: 'Complete', description: 'View results & rollback' }
 ]
 
 export const BulkOperationsWizard: React.FC<BulkOperationsWizardProps> = ({
