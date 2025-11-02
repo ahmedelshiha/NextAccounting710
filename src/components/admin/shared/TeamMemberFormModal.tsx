@@ -40,7 +40,7 @@ interface TeamMemberFormModalProps {
   onClose: () => void
   onSuccess?: (memberId: string) => void
   mode?: 'create' | 'edit'
-  initialData?: Partial<TeamMemberFormData & { id: string }>
+  initialData?: Partial<Record<string, any>> & { id?: string }
   title?: string
   description?: string
 }
