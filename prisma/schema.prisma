@@ -44,6 +44,12 @@ model User {
   maxConcurrentProjects     Int?                    @default(3)
   hireDate                  DateTime?
   managerId                 String?
+  tier                      String?                 // Client tier: INDIVIDUAL, SMB, ENTERPRISE
+  workingHours              Json?                   // Team working hours schedule
+  bookingBuffer             Int?                    // Minutes buffer between bookings
+  autoAssign                Boolean?                // Auto-assign tasks
+  certifications            String[]                // Team certifications
+  experienceYears           Int?                    // Years of experience
   attachments               Attachment[]
   bookingPreferences        BookingPreferences?
   assignedByServiceRequests ServiceRequest[]        @relation("ServiceRequestAssignedBy")
@@ -77,6 +83,16 @@ model User {
   manager                   User?                   @relation("ManagerEmployee", fields: [managerId], references: [id])
   employees                 User[]                  @relation("ManagerEmployee")
   tenant                    Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  workflowsAsUser           UserWorkflow[]          @relation("WorkflowUser")
+  workflowsTriggered        UserWorkflow[]          @relation("WorkflowTriggeredBy")
+  workflowsApproved         UserWorkflow[]          @relation("WorkflowApprovedBy")
+  workflowStepsApproved     WorkflowStep[]          @relation("WorkflowStepApprovedBy")
+  workflowTemplatesCreated  WorkflowTemplate[]      @relation("WorkflowTemplateCreatedBy")
+  workflowHistoryChanges    WorkflowHistory[]       @relation("WorkflowHistoryChangedBy")
+  bulkOperationsCreated     BulkOperation[]         @relation("BulkOperationCreatedBy")
+  bulkOperationsApproved    BulkOperation[]         @relation("BulkOperationApprovedBy")
+  bulkOperationResults      BulkOperationResult[]
+  bulkOperationHistoryChanges BulkOperationHistory[] @relation("BulkOperationHistoryChangedBy")
 
   @@unique([tenantId, email])
   @@index([tenantId, role])
@@ -214,6 +230,10 @@ model Tenant {
   translationKeys       TranslationKey[]
   translationMetrics    TranslationMetrics[]
   users                 User[]
+  userWorkflows         UserWorkflow[]
+  workflowTemplates     WorkflowTemplate[]
+  bulkOperations        BulkOperation[]
+  userManagementSettings UserManagementSettings?
 
   @@index([status])
 }
@@ -1146,6 +1166,28 @@ model OrganizationSettings {
   @@map("organization_settings")
 }
 
+model UserManagementSettings {
+  id                String   @id @default(cuid())
+  tenantId          String   @unique
+  roles             Json     @default("{}")
+  permissions       Json     @default("[]")
+  onboarding        Json     @default("{}")
+  policies          Json     @default("{}")
+  rateLimits        Json     @default("{}")
+  sessions          Json     @default("{}")
+  invitations       Json     @default("{}")
+  clientSettings    Json?
+  teamSettings      Json?
+  lastUpdatedAt     DateTime @updatedAt
+  lastUpdatedBy     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("user_management_settings")
+}
+
 model TranslationKey {
   id           String   @id @default(cuid())
   tenantId     String
@@ -1547,7 +1589,7 @@ model UserWorkflow {
 
   // Relations
   tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User            @relation("WorkflowUser", fields: [userId], references: [id], onDelete: Cascade)
   triggeredByUser User            @relation("WorkflowTriggeredBy", fields: [triggeredBy], references: [id])
   approvedByUser  User?           @relation("WorkflowApprovedBy", fields: [approvedBy], references: [id])
   steps           WorkflowStep[]
@@ -1579,7 +1621,7 @@ model WorkflowStep {
   updatedAt       DateTime       @updatedAt
 
   workflow        UserWorkflow   @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  approvedByUser  User?          @relation(fields: [approvedBy], references: [id])
+  approvedByUser  User?          @relation("WorkflowStepApprovedBy", fields: [approvedBy], references: [id])
 
   @@index([workflowId, stepNumber])
   @@index([status])
@@ -1601,7 +1643,7 @@ model WorkflowTemplate {
   updatedAt        DateTime      @updatedAt
 
   tenant           Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  createdByUser    User          @relation(fields: [createdBy], references: [id])
+  createdByUser    User          @relation("WorkflowTemplateCreatedBy", fields: [createdBy], references: [id])
 
   @@index([tenantId, isActive])
   @@unique([tenantId, name])
@@ -1636,7 +1678,7 @@ model WorkflowHistory {
   createdAt        DateTime      @default(now())
 
   workflow         UserWorkflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  changedByUser    User          @relation(fields: [changedBy], references: [id])
+  changedByUser    User          @relation("WorkflowHistoryChangedBy", fields: [changedBy], references: [id])
 
   @@index([workflowId, createdAt])
   @@map("workflow_history")
@@ -1689,4 +1731,144 @@ enum UserRole {
   TEAM_LEAD
   ADMIN
   SUPER_ADMIN
+}
+
+// Phase 4c Bulk Operations Enums
+enum BulkOperationType {
+  ROLE_CHANGE
+  STATUS_UPDATE
+  PERMISSION_GRANT
+  PERMISSION_REVOKE
+  SEND_EMAIL
+  IMPORT_CSV
+  CUSTOM
+}
+
+enum BulkOperationStatus {
+  DRAFT
+  READY
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+  PAUSED
+}
+
+// Phase 4c Bulk Operations Models
+model BulkOperation {
+  id                String                  @id @default(cuid())
+  tenantId          String
+  name              String                  @db.VarChar(255)
+  description       String?
+  type              BulkOperationType
+  userFilter        Json?                   // Filters for user selection (role, status, etc)
+  operationConfig   Json                    // Operation-specific configuration
+  status            BulkOperationStatus     @default(DRAFT)
+  createdBy         String
+  approvalRequired  Boolean                 @default(false)
+  approvalStatus    String?                 // PENDING, APPROVED, REJECTED
+  approvedBy        String?
+  approvedAt        DateTime?
+  scheduledFor      DateTime?
+  notifyUsers       Boolean                 @default(true)
+  dryRunResults     Json?                   // Results of dry-run preview
+  totalUsersAffected Int                    @default(0)
+  successCount      Int                     @default(0)
+  failureCount      Int                     @default(0)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  errorMessage      String?
+  rollbackAvailable Boolean                 @default(true)
+  rollbackUntilDate DateTime?               // 30 days from completion
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+
+  // Relations
+  tenant            Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  creator           User                    @relation("BulkOperationCreatedBy", fields: [createdBy], references: [id])
+  approver          User?                   @relation("BulkOperationApprovedBy", fields: [approvedBy], references: [id])
+  results           BulkOperationResult[]
+  history           BulkOperationHistory[]
+
+  @@index([tenantId, status, createdAt])
+  @@index([createdBy, createdAt])
+  @@index([status])
+  @@map("bulk_operations")
+}
+
+model BulkOperationResult {
+  id                String              @id @default(cuid())
+  bulkOperationId   String
+  userId            String
+  status            String              // SUCCESS, FAILED, SKIPPED, PENDING
+  errorMessage      String?
+  changesBefore     Json?               // State before operation
+  changesAfter      Json?               // State after operation
+  executionTimeMs   Int?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  // Relations
+  bulkOperation     BulkOperation       @relation(fields: [bulkOperationId], references: [id], onDelete: Cascade)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([bulkOperationId, status])
+  @@index([userId, createdAt])
+  @@map("bulk_operation_results")
+}
+
+model BulkOperationHistory {
+  id                String              @id @default(cuid())
+  bulkOperationId   String
+  eventType         String              // CREATED, STATUS_CHANGED, DRY_RUN, EXECUTED, ROLLBACK, etc
+  eventDescription  String?
+  changedBy         String?
+  oldValue          Json?
+  newValue          Json?
+  createdAt         DateTime            @default(now())
+
+  // Relations
+  bulkOperation     BulkOperation       @relation(fields: [bulkOperationId], references: [id], onDelete: Cascade)
+  changedByUser     User?               @relation("BulkOperationHistoryChangedBy", fields: [changedBy], references: [id])
+
+  @@index([bulkOperationId, createdAt])
+  @@map("bulk_operation_history")
+}
+
+// Phase 3 Workflow Designer Models
+model Workflow {
+  id              String                @id @default(cuid())
+  name            String                @db.VarChar(255)
+  description     String?
+  version         Int                   @default(1)
+  status          String                @default("DRAFT") // DRAFT, ACTIVE, ARCHIVED
+  nodes           Json                  @default("[]") // WorkflowNode[]
+  edges           Json                  @default("[]") // WorkflowEdge[]
+  createdBy       String                @default("system")
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  // Relations
+  simulations     WorkflowSimulation[]
+
+  @@index([status, createdAt])
+  @@index([createdBy, createdAt])
+  @@map("workflows")
+}
+
+model WorkflowSimulation {
+  id              String                @id @default(cuid())
+  workflowId      String
+  testData        Json?
+  executionPath   Json                  @default("[]") // ExecutionStep[]
+  totalDuration   Int                   @default(0)
+  success         Boolean               @default(false)
+  errors          String[]              @default([])
+  createdAt       DateTime              @default(now())
+
+  // Relations
+  workflow        Workflow              @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([workflowId, createdAt])
+  @@map("workflow_simulations")
 }

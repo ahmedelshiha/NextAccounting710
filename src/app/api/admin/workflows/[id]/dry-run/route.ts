@@ -5,12 +5,14 @@ import { hasPermission, PERMISSIONS } from '@/lib/permissions'
 import { respond } from '@/lib/api-response'
 import prisma from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 // POST /api/admin/workflows/:id/dry-run
 export const POST = withTenantContext(async (_request: Request, { params }: { params: { id: string } }) => {
   const ctx = requireTenantContext()
   if (!ctx.userId) return respond.unauthorized()
+  if (!ctx.tenantId) return respond.unauthorized()
   if (!hasPermission(ctx.role ?? '', PERMISSIONS.USERS_MANAGE)) return respond.forbidden('Forbidden')
 
   const id = params.id
