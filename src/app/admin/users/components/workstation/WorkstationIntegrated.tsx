@@ -132,6 +132,11 @@ export function WorkstationIntegrated({
     }
   }, [users, workstationContext])
 
+  // Clear selection
+  const handleClearSelection = useCallback(() => {
+    workstationContext.setSelectedUserIds(new Set())
+  }, [workstationContext])
+
   // Apply bulk action
   const handleApplyBulkAction = useCallback(async () => {
     if (!workstationContext.bulkActionType || workstationContext.selectedUserIds.size === 0) {
@@ -142,7 +147,7 @@ export function WorkstationIntegrated({
     try {
       await workstationContext.applyBulkAction()
       toast.success('Bulk action applied successfully')
-      workstationContext.setSelectedUserIds(new Set())
+      handleClearSelection()
     } catch (error) {
       toast.error('Failed to apply bulk action')
       console.error('Bulk action error:', error)
