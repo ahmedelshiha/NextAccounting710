@@ -198,16 +198,7 @@ export function EnterpriseUsersPage() {
             )}
           >
             <Suspense fallback={<DashboardTabSkeleton />}>
-              <ExecutiveDashboardTab
-                users={context.users}
-                stats={context.stats}
-                isLoading={context.usersLoading || context.isLoading}
-                onAddUser={handleAddUser}
-                onImport={handleImport}
-                onBulkOperation={handleBulkOperation}
-                onExport={handleExport}
-                onRefresh={handleRefresh}
-              />
+              <ExecutiveDashboardTabWrapper />
             </Suspense>
           </ErrorBoundary>
         )}
