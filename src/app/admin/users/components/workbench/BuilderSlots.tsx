@@ -9,6 +9,30 @@ import AdminSidebar from './AdminSidebar'
 import BulkActionsPanel from './BulkActionsPanel'
 
 /**
+ * Render Builder.io block content
+ *
+ * Converts Builder.io block structure to React elements
+ */
+function renderBuilderBlocks(blocks: any[]): React.ReactNode {
+  if (!Array.isArray(blocks)) {
+    return null
+  }
+
+  return blocks.map((block, idx) => {
+    return (
+      <div
+        key={idx}
+        data-builder-block={block.id}
+        className={block.className || ''}
+        style={block.style || {}}
+      >
+        {block.children ? renderBuilderBlocks(block.children) : block.content || null}
+      </div>
+    )
+  })
+}
+
+/**
  * Builder.io content slot wrapper for header section
  *
  * Renders Builder.io content if available, otherwise renders default QuickActionsBar
@@ -23,28 +47,21 @@ export function BuilderHeaderSlot() {
   }
 
   if (isLoading) {
-    return <QuickActionsBar /> // Show default while loading
+    return <QuickActionsBar />
   }
 
   if (error) {
     console.warn(`Failed to load Builder.io header content: ${error}`)
-    return <QuickActionsBar /> // Fallback to default on error
+    return <QuickActionsBar />
   }
 
   if (!content) {
-    return <QuickActionsBar /> // No content available
+    return <QuickActionsBar />
   }
 
-  // Render Builder content
-  // This would be handled by @builder.io/react BuilderContent component
-  // when full Builder.io SDK integration is complete
   return (
     <div data-builder-model={BUILDER_MODELS.ADMIN_WORKBENCH_HEADER}>
-      {content.blocks ? (
-        <div>{/* Render builder blocks */}</div>
-      ) : (
-        <QuickActionsBar />
-      )}
+      {content.blocks ? renderBuilderBlocks(content.blocks) : <QuickActionsBar />}
     </div>
   )
 }
