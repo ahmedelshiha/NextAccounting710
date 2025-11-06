@@ -31,7 +31,7 @@ You are a senior full-stack developer tasked with implementing the **Admin Workb
 
 1. **Read the entire transformation plan document thoroughly**
    - Review the quick start guide: `docs/ADMIN_WORKBENCH_QUICK_START.md`
-   - Review the main roadmap: `docs/ADMIN_WORKBENCH_TRANSFORMATION_ROADMAP.md`
+   - Review the main roadmap: `docs/ADMIN_WORKBENCH_TRANSFORMATION_ROADMAP.MD`
    - Review the implementation summary: `docs/ADMIN_WORKBENCH_IMPLEMENTATION_SUMMARY.md`
    - Review the verification checklist: `docs/ADMIN_WORKBENCH_VERIFICATION.md`
 
@@ -94,7 +94,7 @@ For **EACH task**, follow this exact format:
 ```
 
 ### Step 5: Update Markdown File
-- Update the corresponding progress file (e.g., `docs/ADMIN_WORKBENCH_PHASE_1_5_PROGRESS.md`)
+- Update the corresponding progress file (e.g., `docs/ADMIN_WORKBENCH_PHASE_1_5_PROGRESS.md` or `docs/PHASE_6_7_8_COMPLETION_SUMMARY.md`)
 - Change `[ ]` to `[x]` for completed tasks
 - Add completion timestamp: `[x] Task completed - [Date Time]`
 - Update the implementation summary (`docs/ADMIN_WORKBENCH_IMPLEMENTATION_SUMMARY.md`) if needed
@@ -103,9 +103,22 @@ For **EACH task**, follow this exact format:
 
 ## 🗓️ IMPLEMENTATION SEQUENCE (Refer to docs/ADMIN_WORKBENCH_TRANSFORMATION_ROADMAP.md)
 
-### **PHASE 1: Core Components (Refer to docs/ADMIN_WORKBENCH_TRANSFORMATION_ROADMAP.md)**
+### **PHASE 1-5: Core Components (Refer to docs/ADMIN_WORKBENCH_PHASE_1_5_PROGRESS.md)**
 
 ---
+
+### **PHASE 6-8: Completion & Rollout Documentation**
+
+The following documentation has been created to finalize the project. You MUST review these files to understand the implementation, testing, and rollout strategy for the Builder.io integration and final phases.
+
+| Phase | Document | Summary |
+| :--- | :--- | :--- |
+| **Phase 6: Builder.io Integration** | `docs/BUILDER_IO_INTEGRATION_GUIDE.md` | Complete setup, architecture, and workflow guide for the Builder.io CMS integration, including API configuration and fallback logic. |
+| | `docs/BUILDER_IO_SETUP_MODELS.md` | Step-by-step instructions for creating the required Builder.io models (`admin-workbench-header`, `metrics`, `sidebar`, `footer`) and defining their schemas. |
+| | `docs/BUILDER_IO_TESTING_PLAN.md` | Comprehensive testing plan with 9 suites and over 50 scenarios to verify content loading, caching, fallback, and E2E functionality. |
+| **Phase 7: Testing & Accessibility** | `docs/ACCESSIBILITY_AUDIT_PLAN.md` | Detailed plan for achieving **WCAG 2.1 AA compliance**, including keyboard navigation, screen reader testing (NVDA, VoiceOver), and color contrast verification (100+ scenarios). |
+| | `docs/PERFORMANCE_AUDIT_PLAN.md` | Guide for conducting a **Lighthouse audit**, setting Web Vitals targets (LCP < 2.5s), and outlining the performance monitoring and optimization strategy. |
+| **Phase 8: Monitoring & Rollout** | `docs/PHASE_6_7_8_COMPLETION_SUMMARY.md` | Final summary of all work completed in Phases 6, 7, and 8, including key metrics, file structures, testing results, and the staged rollout plan. |
 
 ### **Continue This Pattern for All Tasks**
 
