@@ -511,48 +511,85 @@ export function useUpdateUser() {
 }
 ```
 
-### Step 5: Builder.io Integration (Phase 6)
+### Step 5: Builder.io Integration (Phase 6) ✅ COMPLETE
 
-Create Builder slots for editor-managed content:
+**Implementation Summary:**
+
+The Builder.io CMS integration has been fully implemented and is production-ready. Admins can now customize the AdminWorkBench dashboard without code changes.
+
+**How It Works:**
 
 ```typescript
-// src/app/admin/users/components/AdminUsersLayout.tsx
-import { builder, BuilderContent } from '@builder.io/react'
+// AdminUsersLayout.tsx: Render CMS content or fallback to defaults
+export default function AdminUsersLayout() {
+  const isBuilderEnabled = useIsBuilderEnabled()
 
-// Register slots with Builder
-builder.defineModel('AdminWorkbenchSlots', {
-  kind: 'model',
-  fields: {
-    headerControls: { type: 'reference', model: 'section' },
-    metricCardsGrid: { type: 'reference', model: 'section' },
-    sidebarWidgets: { type: 'reference', model: 'section' },
-    mainGridContainer: { type: 'reference', model: 'section' },
-    footerActions: { type: 'reference', model: 'section' }
-  }
-})
+  return (
+    <div className="admin-workbench-container">
+      {/* CMS slot with fallback to QuickActionsBar */}
+      {isBuilderEnabled ? <BuilderHeaderSlot /> : <QuickActionsBar />}
 
-// Render editable slots
-<BuilderContent model="AdminWorkbenchSlots" entry="admin-workbench-main">
-  {(slot) => (
-    <>
-      {/* Header: editable by admins */}
-      {slot?.headerControls || <QuickActionsBar />}
-      
-      {/* Metrics: data-driven + reorderable */}
-      {slot?.metricCardsGrid || <OverviewCards />}
-      
-      {/* Sidebar: toggleable widgets */}
-      {slot?.sidebarWidgets || <AdminSidebar />}
-      
-      {/* Main table: layout configurable */}
-      {slot?.mainGridContainer || <UserDirectorySection />}
-      
-      {/* Footer: customizable CTA */}
-      {slot?.footerActions || <BulkActionsPanel />}
-    </>
-  )}
-</BuilderContent>
+      {/* CMS slot with fallback to OverviewCards */}
+      {isBuilderEnabled ? <BuilderMetricsSlot /> : <OverviewCards />}
+
+      {/* Sidebar with fallback */}
+      {isBuilderEnabled ? (
+        <BuilderSidebarSlot {...props} />
+      ) : (
+        <AdminSidebar {...props} />
+      )}
+
+      {/* Footer with fallback */}
+      {selectedCount > 0 && (
+        isBuilderEnabled ? (
+          <BuilderFooterSlot {...footerProps} />
+        ) : (
+          <BulkActionsPanel {...footerProps} />
+        )
+      )}
+    </div>
+  )
+}
 ```
+
+**Core Implementation Files:**
+
+1. **Config Module** (`src/lib/builder-io/config.ts`)
+   - Defines 5 models: header, metrics, sidebar, footer, main
+   - Manages environment variables
+   - Provides fallback defaults
+
+2. **Content Hook** (`src/hooks/useBuilderContent.ts`)
+   ```typescript
+   const { content, isLoading, error, isCached } = useBuilderContent('admin-workbench-header')
+   ```
+   - Automatic caching (5 minutes)
+   - Retry logic on failures
+   - Type-safe content fetching
+
+3. **Builder Slots** (`src/app/admin/users/components/workbench/BuilderSlots.tsx`)
+   - 5 slots for different sections
+   - Graceful fallback to default components
+   - Error boundary handling
+
+4. **API Endpoint** (`src/app/api/builder-io/content/route.ts`)
+   - GET `/api/builder-io/content?model=MODEL&space=SPACE`
+   - Proxies to Builder.io API
+   - 5-minute caching
+
+5. **Tests** (`src/app/admin/users/components/workbench/__tests__/BuilderIntegration.test.tsx`)
+   - 12 test cases covering config, hooks, slots, caching
+
+**Setup Instructions:**
+
+See [`docs/BUILDER_IO_ENV_SETUP.md`](./BUILDER_IO_ENV_SETUP.md) for quick 30-minute setup.
+
+**Complete Documentation:**
+
+- 📖 [`PHASE_6_BUILDER_IO_CMS_INTEGRATION.md`](./PHASE_6_BUILDER_IO_CMS_INTEGRATION.md) — Full guide (475 lines)
+- ⚡ [`BUILDER_IO_ENV_SETUP.md`](./BUILDER_IO_ENV_SETUP.md) — Quick setup (96 lines)
+- ✅ [`PHASE_6_COMPLETION_SUMMARY.md`](./PHASE_6_COMPLETION_SUMMARY.md) — Completion report (345 lines)
+- 📋 [`PHASE_6_QUICK_REFERENCE.md`](./PHASE_6_QUICK_REFERENCE.md) — Reference card (286 lines)
 
 ### Step 6: Testing & QA (Phase 7)
 
