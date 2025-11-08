@@ -42,6 +42,10 @@ export default function ClientsList() {
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<{ role?: string; status?: string; range?: string }>({})
   const [selectedIds, setSelectedIds] = useState<Array<string | number>>([])
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false)
+  const [selectedBulkRole, setSelectedBulkRole] = useState<string | null>(null)
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
+  const [selectedBulkStatus, setSelectedBulkStatus] = useState<string | null>(null)
 
   // Translate date range to dateFrom/dateTo
   const now = new Date()
