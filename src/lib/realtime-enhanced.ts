@@ -82,12 +82,30 @@ class PostgresPubSub implements PubSubAdapter { public name = 'postgres'
   }
   private async startListener(ClientCtor: any) {
     if (!this.url) return
-    const client = new ClientCtor({ connectionString: this.url })
+    const client = new ClientCtor({ connectionString: this.url, connectionTimeoutMillis: 3000 })
     this.listenClient = client
     client.on('error', () => this.scheduleReconnect(ClientCtor))
     client.on('end', () => this.scheduleReconnect(ClientCtor))
-    await client.connect()
-    await client.query(`LISTEN ${this.channel}`)
+
+    // Add timeout to connection and LISTEN setup
+    try {
+      await Promise.race([
+        client.connect(),
+        new Promise<void>((_, reject) =>
+          setTimeout(() => reject(new Error('Connection timeout')), 3000)
+        )
+      ])
+      await Promise.race([
+        client.query(`LISTEN ${this.channel}`),
+        new Promise<void>((_, reject) =>
+          setTimeout(() => reject(new Error('LISTEN timeout')), 2000)
+        )
+      ])
+    } catch (e) {
+      try { await client.end() } catch {}
+      throw e
+    }
+
     client.on('notification', (msg: any) => {
       if (!msg?.payload) return
       try {
