@@ -321,6 +321,7 @@ model Tenant {
   filterPresets         FilterPreset[]
   reports               Report[]
   userManagementSettings UserManagementSettings?
+  exportSchedules    ExportSchedule[]
 
   @@index([status])
 }
