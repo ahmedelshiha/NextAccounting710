@@ -14,8 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SwipeToConfirm } from "@/components/ui/SwipeToConfirm";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface IndividualTabProps {
   onError: (message: string) => void;
@@ -72,6 +74,7 @@ export default function IndividualTab({
   });
 
   const selectedCountry = watch("country");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const onSubmit = async (data: IndividualInput) => {
     try {
@@ -249,22 +252,32 @@ export default function IndividualTab({
               <p className="text-red-600 text-sm -mt-2">{errors.termsAccepted.message}</p>
             )}
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting || isLoading}
-              size="lg"
-            >
-              {isSubmitting || isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Setting up...
-                </>
-              ) : (
-                "Create My Account"
-              )}
-            </Button>
+            {/* Submit Button - Mobile Swipe or Desktop Click */}
+            {isMobile ? (
+              <SwipeToConfirm
+                text="Swipe to create account"
+                successText="Creating..."
+                onSwipeComplete={handleSubmit(onSubmit)}
+                disabled={isSubmitting || isLoading}
+                isLoading={isLoading}
+              />
+            ) : (
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || isLoading}
+                size="lg"
+              >
+                {isSubmitting || isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Setting up...
+                  </>
+                ) : (
+                  "Create My Account"
+                )}
+              </Button>
+            )}
           </form>
         </CardContent>
       </Card>

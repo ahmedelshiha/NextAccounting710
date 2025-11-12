@@ -15,8 +15,10 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { SwipeToConfirm } from "@/components/ui/SwipeToConfirm";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface ExistingBusinessTabProps {
   onError: (message: string) => void;
@@ -84,6 +86,7 @@ export default function ExistingBusinessTab({
 
   const selectedCountry = watch("country");
   const licenseNumber = watch("licenseNumber");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const handleLicenseLookup = useCallback(async () => {
     if (!licenseNumber || licenseNumber.length < 3) {
@@ -275,22 +278,32 @@ export default function ExistingBusinessTab({
               <p className="text-red-600 text-sm -mt-2">{errors.termsAccepted.message}</p>
             )}
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting || isLoading}
-              size="lg"
-            >
-              {isSubmitting || isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Setting up...
-                </>
-              ) : (
-                "Set up Business"
-              )}
-            </Button>
+            {/* Submit Button - Mobile Swipe or Desktop Click */}
+            {isMobile ? (
+              <SwipeToConfirm
+                text="Swipe to set up"
+                successText="Setting up..."
+                onSwipeComplete={handleSubmit(onSubmit)}
+                disabled={isSubmitting || isLoading}
+                isLoading={isLoading}
+              />
+            ) : (
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || isLoading}
+                size="lg"
+              >
+                {isSubmitting || isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Setting up...
+                  </>
+                ) : (
+                  "Set up Business"
+                )}
+              </Button>
+            )}
           </form>
         </CardContent>
       </Card>

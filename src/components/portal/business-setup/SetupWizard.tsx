@@ -62,9 +62,11 @@ export default function SetupWizard({
     router.push(`/portal/setup/status/${entityId}`);
   }, [onComplete, onOpenChange, router]);
 
+  const isRtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir={isRtl ? "rtl" : "ltr"}>
         <DialogHeader>
           <div className="flex items-center gap-3">
             <span className="text-2xl">🏢</span>

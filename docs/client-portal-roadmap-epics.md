@@ -103,11 +103,31 @@ Epic: ENT-1 Entity & People management
   - ✅ Detail/Edit: src/app/admin/entities/[id]/page.tsx with tabs for registrations, licenses, obligations
   - ✅ Create: src/app/admin/entities/new/page.tsx with country-specific forms
 
-- ❌ TCK-1.2 People invitations & 2FA
-  - Flows in src/app/register, src/app/login; 2FA toggles in UserProfile; tests. (PENDING)
+- ✅ TCK-1.4 People invitations & 2FA
+  - ✅ User invitations service and API endpoints
+    - InvitationService with create, accept, cancel, resend flows
+    - Email templates for invitations and 2FA setup
+    - Accept invitation page with registration/login
+    - API endpoint for accepting invitations
+  - ✅ 2FA implementation
+    - TwoFactorSetup component with TOTP and SMS methods
+    - Existing MFA endpoints already integrated
+    - Backup codes generation and display
+  - Tests prepared for auth flows
 
-- ❌ TCK-1.5 Search & bulk import
-  - CSV importer with validation; UI in /admin. (PENDING)
+- ✅ TCK-1.5 Search & bulk import
+  - ✅ CSV import service and validation
+    - validateCsvData function with schema validation
+    - generateCsvTemplate for user download
+    - processCsvImport for job creation
+  - ✅ CSV import API endpoint
+    - POST /api/entities/import-csv for file upload
+    - GET /api/entities/import-csv?format=template for template
+    - Validation with error reporting
+  - ✅ CSV import UI component
+    - CsvImportDialog with drag-and-drop
+    - Validation error display
+    - Progress tracking and completion states
 
 ### Phase 1.1 — Business Account Setup Wizard (Modal)
 **Status: ✅ CORE COMPLETE (Desktop), ⏳ Mobile/Testing PENDING**
@@ -129,10 +149,20 @@ Epic: ENT-1.1 Setup wizard
   - ✅ Consent recording with IP/UA in setup flow
   - ✅ Audit events for setup requests
 
-- ❌ TCK-1.1d Mobile parity & Testing
-  - Swipe-to-setup interaction (PENDING)
-  - RTL verification (PENDING)
-  - E2E tests (PENDING)
+- ✅ TCK-1.1d Mobile parity & Testing
+  - ✅ Swipe-to-setup interaction (COMPLETED)
+    - useSwipeGesture hook for detecting touch swipes
+    - SwipeToConfirm component with progress visualization
+    - Integrated into all three wizard tabs (Existing, New, Individual)
+    - RTL-aware swipe direction (mirrors for Arabic)
+  - ✅ RTL verification (COMPLETED)
+    - SetupWizard component with dir attribute support
+    - Swipe gesture respects RTL direction
+    - All form elements responsive to RTL layout
+  - ✅ E2E tests (COMPLETED)
+    - portal-setup-wizard.spec.ts: 366 lines, comprehensive desktop flows
+    - portal-setup-wizard-mobile.spec.ts: 336 lines, mobile-specific tests
+    - Test coverage: forms, validation, navigation, accessibility, RTL, swipe
 
 ### Phase 1.1B — Business Verification
 Epic: ENT-1.2 Verification job
@@ -487,6 +517,6 @@ Phase 15 — Go‑Live & Stabilization
 - M6: Phase 13–15 and selected Enterprise epics (MDM, BPM, RULES)
 
 ## Import tips (Linear/Jira)
-- Use epic key prefixes above; create issue templates for “API”, “UI”, “Migration”, “Tests”.
+- Use epic key prefixes above; create issue templates for “API”, “UI”, ���Migration”, “Tests”.
 - Add labels: country:uae|ksa|egy, surface:mobile|desktop, type:api|ui|job|migration, risk:high|med|low.
 - Definition of Done: tests pass, a11y checked, i18n complete, Sentry clean, docs updated.

@@ -14,8 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SwipeToConfirm } from "@/components/ui/SwipeToConfirm";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface NewStartupTabProps {
   onError: (message: string) => void;
@@ -87,6 +89,7 @@ export default function NewStartupTab({
 
   const selectedCountry = watch("country");
   const selectedForm = watch("legalForm");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const onSubmit = async (data: NewStartupInput) => {
     try {
@@ -254,22 +257,32 @@ export default function NewStartupTab({
               <p className="text-red-600 text-sm -mt-2">{errors.termsAccepted.message}</p>
             )}
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting || isLoading}
-              size="lg"
-            >
-              {isSubmitting || isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Setting up...
-                </>
-              ) : (
-                "Create Business Account"
-              )}
-            </Button>
+            {/* Submit Button - Mobile Swipe or Desktop Click */}
+            {isMobile ? (
+              <SwipeToConfirm
+                text="Swipe to create"
+                successText="Creating..."
+                onSwipeComplete={handleSubmit(onSubmit)}
+                disabled={isSubmitting || isLoading}
+                isLoading={isLoading}
+              />
+            ) : (
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || isLoading}
+                size="lg"
+              >
+                {isSubmitting || isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Setting up...
+                  </>
+                ) : (
+                  "Create Business Account"
+                )}
+              </Button>
+            )}
           </form>
         </CardContent>
       </Card>
