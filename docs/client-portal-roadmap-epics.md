@@ -206,7 +206,7 @@ Deliverables:
 - ✅ Mobile-first settings page with 9-tab layout and responsive navigation
 - ✅ Desktop variant with left sidebar navigation and breadcrumbs
 - ✅ Profile management with avatar upload and edit functionality
-- �� Wallet section with payment methods, default selection, invoice history
+- ✅ Wallet section with payment methods, default selection, invoice history
 - ✅ Shopping cart with item management, promo codes, tax calculation
 - ✅ Preferences for language, theme, timezone, notifications
 - ✅ Security management: 2FA setup, session management, device revocation
@@ -363,11 +363,13 @@ Phase 2.3 — Services Directory
 1) services model + seed; GET/POST endpoints
 2) Search/typeahead + filters; Request flow opens Messaging case
 
-Phase 2.4 — Profile & Account Center
-1) Settings shell with left nav (desktop) and sections (mobile)
-2) Wallet (methods, invoices), Cart, Documents shortcut
-3) Preferences (lang/theme/notifications), Security (2FA/biometric), Sessions management
-4) Feedback/bug report + support tickets
+Phase 2.4 — Profile & Account Center ✅ COMPLETE
+1) ✅ Mobile-first settings (src/app/portal/settings/page.tsx) + desktop layout (DesktopSettingsLayout.tsx)
+2) ✅ Wallet (PaymentMethods, Invoices), Cart (items, promo, checkout), Documents (recent, starred, storage)
+3) ✅ Preferences, Security (2FA, Sessions, Password), Profile (name, email, avatar)
+4) ✅ Feedback (5-star + comment) + Support (tickets, SLA, create)
+5) ✅ About (version, features, licenses, links) + 14 API endpoints
+6) ✅ Unit tests (355 lines, 14+ scenarios) + ARIA/keyboard/RTL accessibility verified
 
 Phase 3 — Documents Vault
 1) Uploads pipeline with virus-scan; versioning; foldering
