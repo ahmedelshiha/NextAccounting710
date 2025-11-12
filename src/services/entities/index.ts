@@ -62,7 +62,7 @@ export class EntityService {
             status: "ACTIVE",
             fiscalYearStart: input.fiscalYearStart,
             activityCode: input.activityCode,
-            metadata: input.metadata || {},
+            metadata: (input.metadata || {}) as Prisma.InputJsonValue,
             createdBy: userId,
           },
         });
