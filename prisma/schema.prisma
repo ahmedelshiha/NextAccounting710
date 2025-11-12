@@ -110,6 +110,7 @@ model User {
   supportTicketsAssigned    SupportTicket[]       @relation("SupportTicketsAssigned")
   supportTicketComments     SupportTicketComment[]  @relation("SupportTicketComments")
   knowledgeBaseArticles     KnowledgeBaseArticle[] @relation("KnowledgeBaseArticles")
+  paymentMethods            UserPaymentMethod[]    @relation("UserPaymentMethods")
 
   @@unique([tenantId, email])
   @@index([tenantId, role])
