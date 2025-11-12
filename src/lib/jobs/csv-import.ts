@@ -2,13 +2,6 @@ import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import { countryRegistry } from "@/lib/registries/countries";
 
-// Upstash Redis mock for build - will use REST API at runtime
-const redis = {
-  get: async (key: string) => null,
-  set: async (key: string, value: any, options?: any) => 'OK',
-  del: async (key: string) => 1,
-  expire: async (key: string, seconds: number) => 1,
-};
 import type { EntityRow } from "@/lib/csv/entity-importer";
 
 export type CsvImportJobStatus = 
