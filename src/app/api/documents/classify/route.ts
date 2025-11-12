@@ -15,8 +15,7 @@ const ClassifyRequestSchema = z.object({
   content: z.string().optional(),
 })
 
-export async function POST(request: NextRequest) {
-  return withTenantContext(async () => {
+export const POST = withTenantContext(async (request: NextRequest) => {
     const { userId, tenantId } = requireTenantContext()
 
     if (!userId || !tenantId) {
@@ -79,14 +78,12 @@ export async function POST(request: NextRequest) {
       )
     }
   })
-}
 
 /**
  * GET /api/documents/classify/:documentId
  * Retrieves classification for a document
  */
-export async function GET(request: NextRequest) {
-  return withTenantContext(async () => {
+export const GET = withTenantContext(async (request: NextRequest) => {
     const { tenantId } = requireTenantContext()
 
     if (!tenantId) {
@@ -135,4 +132,3 @@ export async function GET(request: NextRequest) {
       },
     })
   })
-}
