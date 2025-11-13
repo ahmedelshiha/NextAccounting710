@@ -97,10 +97,14 @@ export const UserForm = React.forwardRef<HTMLFormElement, UserFormProps>(
       }
     }, [tempPassword])
 
-    const onFormSubmit = async (data: UserCreate | UserEdit) => {
+    const onFormSubmit = async (data: any) => {
       setIsSubmitting(true)
       try {
-        await onSubmit(data)
+        // Ensure the data is properly typed based on mode
+        const submitData = mode === 'create' 
+          ? (data as UserCreate)
+          : (data as UserEdit)
+        await onSubmit(submitData)
         toast.success(`User ${mode === 'create' ? 'created' : 'updated'} successfully`)
       } catch (error) {
         const message = error instanceof Error ? error.message : 'An error occurred'
