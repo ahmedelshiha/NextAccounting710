@@ -150,18 +150,10 @@ export const POST = withTenantContext(async (request: NextRequest) => {
 
     // Update invoice with submission details
     if (submitResult.success) {
-      const metadata = invoice.metadata ? (typeof invoice.metadata === 'string' ? JSON.parse(invoice.metadata) : invoice.metadata) : {}
       await prisma.invoice.update({
         where: { id: validated.invoiceId },
         data: {
           status: 'SUBMITTED' as InvoiceStatus,
-          metadata: JSON.stringify({
-            ...metadata,
-            einvoicingStatus: 'SUBMITTED',
-            einvoicingReference: submitResult.referenceNumber || submitResult.etaUuid,
-            einvoicingSubmittedAt: new Date().toISOString(),
-            country: validated.country,
-          }),
         },
       })
     }
